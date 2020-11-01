@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="Selenium Corporate Responsive" >
+    <listeners>
+        <listener class-name="com.mozzer.testrail.CustomTestRailReportListener"/>
+    </listeners>
+    <test name="ChromeTest-HR">
+        <classes>
+            <class name="com.mozzer.tests.LoginTest"></class>
+            <class name="com.mozzer.tests.DashboardTest"></class>
+        </classes>
+    </test>
+    <test name="FirefoxTest-HR">
+        <classes>
+            <class name="com.mozzer.tests.LoginTest"></class>
+            <class name="com.mozzer.tests.DashboardTest"></class>
+        </classes>
+    </test>
+    <test name="ChromeTest-EN">
+        <classes>
+            <class name="com.mozzer.tests.LoginTest"></class>
+            <class name="com.mozzer.tests.DashboardTest"></class>
+        </classes>
+    </test>
+    <test name="FirefoxTest-EN">
+        <classes>
+            <class name="com.mozzer.tests.LoginTest"></class>
+            <class name="com.mozzer.tests.DashboardTest"></class>
+        </classes>
+    </test>
+</suite>
