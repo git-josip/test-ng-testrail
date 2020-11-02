@@ -6,13 +6,11 @@ import com.codepine.api.testrail.model.Result;
 import com.codepine.api.testrail.model.ResultField;
 import com.google.common.collect.Lists;
 import com.mozzer.config.ConfigurationManager;
+import com.mozzer.testrail.reporterdto.ReporterDtoUtils;
 import com.mozzer.testrail.reporterdto.TestMethodData;
-import com.mozzer.testrail.reporterdto.TestRailStatus;
 import com.mozzer.testrail.reporterdto.TestRunData;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.testng.*;
 import org.testng.xml.XmlSuite;
-import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,53 +21,9 @@ public class CustomTestRailReportListener implements IReporter{
     public void generateReport(List<XmlSuite> xmlSuites, List<ISuite> suites, String outputDirectory) {
         suites.forEach(suite->{
             // One suite is mapped to 1 test PLAN on testRail.
-            List<TestRunData> testRunData = extractTestRunData(suite);
+            List<TestRunData> testRunData = ReporterDtoUtils.extractTestRunData(suite);
             reportResults(testRunData);
         });
-    }
-
-    public List<TestRunData> extractTestRunData(ISuite suite) {
-        List<TestRunData> allTestRunData = Lists.newArrayList();
-        suite.getResults().forEach((key, value) -> {
-            ITestContext context = value.getTestContext();
-
-            TestRunData trd = TestRunData.builder()
-                    .name(key)
-                    .testMethodData(Lists.newArrayList())
-                    .build();
-
-            trd.getTestMethodData().addAll(createTestMethodData(context.getPassedTests().getAllResults(), TestRailStatus.PASSED));
-            trd.getTestMethodData().addAll(createTestMethodData(context.getFailedTests().getAllResults(), TestRailStatus.FAILED));
-            trd.getTestMethodData().addAll(createTestMethodData(context.getSkippedTests().getAllResults(), TestRailStatus.UNTESTED));
-
-            allTestRunData.add(trd);
-        });
-
-        return allTestRunData;
-    }
-
-    public List<TestMethodData> createTestMethodData(Set<ITestResult> results, TestRailStatus status) {
-        List<TestMethodData> resultBuilder = Lists.newArrayList();
-
-        results.forEach(element -> {
-            Method method = element.getMethod().getConstructorOrMethod().getMethod();
-            TestRailCase trCase = method.getAnnotation(TestRailCase.class);
-            int testRailId = trCase.id();
-
-            TestMethodData.TestMethodDataBuilder tmd = TestMethodData.builder()
-                    .testRailId(testRailId)
-                    .methodName(element.getName())
-                    .testClassName(element.getInstanceName())
-                    .status(status);
-
-            if(Objects.nonNull(element.getThrowable())) {
-                tmd.stackTrace(ExceptionUtils.getStackTrace(element.getThrowable()));
-            }
-
-            resultBuilder.add(tmd.build());
-        });
-
-        return resultBuilder;
     }
 
     public static void reportResults( List<TestRunData> testRunData) {
